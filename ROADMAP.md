@@ -1,7 +1,11 @@
 # Tamagotchi CLI — Roadmap
 
 Current state: single-pet CLI, local JSON persistence, one user.
-Target: multiplayer server with species variety, 6-creature parties, and skill-based PvP battles.
+Target: a Digimon-inspired multiplayer experience — digital monsters that live on your machine, connected to a wider digital world via the internet.
+
+## Theme
+
+Your creature is a **digital monster** that inhabits your terminal. The internet is its world — wild digital monsters roam it as viruses, rogue processes, malicious entities. When your terminal is open and connected, encounters can happen at any time. When you're offline, the digital world is quiet. Your monster defends your system or hunts viruses depending on how you play.
 
 ---
 
@@ -71,9 +75,62 @@ Creature    + speciesId, level, xp, atk, def, spd, maxHp
 
 ---
 
-## Phase 3 — Battle System + Matchmaking
+## Phase 3 — Wild Encounters (Virus System)
 
-Turn-based PvP where users queue with their full party of 6.
+While `tama watch` is running and the client has an active server connection, wild digital monsters (viruses) can intrude at any time.
+
+**Concept**
+- Wild encounters only happen when online — viruses exist in the digital network, not locally
+- When offline (no server connection), watch mode runs normally with no encounters
+- Encounter is a "virus" — a wild creature with randomized species, level, and moves
+- User can: **fight** (make it faint → XP) or **capture** (add to party if slot available)
+- A system notification fires when an encounter starts so the user knows even if the terminal isn't in focus
+
+**Encounter flow**
+1. Server periodically pushes encounter events to connected watch sessions via WebSocket
+2. Client receives event, interrupts watch mode display, renders encounter screen
+3. User picks: `[fight]` `[catch]` `[flee]`
+4. Battle resolves turn-by-turn (same engine as PvP, but opponent is server-controlled AI)
+5. On faint: XP awarded to active creature, encounter dismissed
+6. On catch: creature added to party (if < 6), or prompted to release one
+7. On flee: 50% chance to escape (speed-based); encounter ends
+8. After encounter: watch mode resumes normally
+
+**Encounter rate**
+- Base rate: 1 encounter per 15–30 min (random interval, server-side)
+- Rate scales with server "threat level" (could be a global value, fun for events)
+- Higher-level players face higher-level viruses
+
+**Notification**
+- Uses `node-notifier` (or OS-native via shell: `osascript` on Mac, `notify-send` on Linux)
+- Message: `"⚠ Virus detected — [VirusName] is attacking your system!"`
+- Fires client-side on encounter event receipt
+
+**Offline behavior**
+- Watch mode checks server connectivity on start
+- If no connection: displays `[OFFLINE — no encounters]` indicator, watch mode still works for care
+- On reconnect: encounter eligibility resumes
+
+**Wild Creature schema**
+```
+WildEncounter   id, userId, speciesId, level, status (pending/fled/fainted/caught), createdAt
+```
+
+**Tasks**
+- [ ] Server: encounter scheduler — push WebSocket events to connected sessions at random intervals
+- [ ] Server: wild creature generator — random species + level scaled to user's active creature
+- [ ] Client: interrupt watch mode on encounter event, render encounter screen
+- [ ] Client: fight/catch/flee logic in watch mode keypress handler
+- [ ] Client: OS notification on encounter (`node-notifier`)
+- [ ] Client: offline detection + `[OFFLINE]` indicator in watch mode
+- [ ] Server: log encounter outcomes to `WildEncounter` table
+- [ ] XP reward on faint, party add on catch
+
+---
+
+## Phase 4 — PvP Battle System + Matchmaking
+
+Turn-based PvP where users queue with their full party of 6. Same battle engine used for wild encounters (Phase 3) — just swap the AI opponent for a human player.
 
 **Battle rules**
 - Each player sends their full party of 6
