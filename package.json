@@ -1,0 +1,24 @@
+{
+  "name": "tamagotchi-cli",
+  "version": "0.1.0",
+  "description": "A persistent terminal virtual pet",
+  "type": "module",
+  "bin": {
+    "tama": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "cli-progress": "^3.12.0"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}
