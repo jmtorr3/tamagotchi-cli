@@ -79,6 +79,12 @@ async function main() {
       savePet(renamed);
       break;
     }
+    case "watch": {
+      const interval = Number(args[0]) > 0 ? Number(args[0]) : 10;
+      const { runWatch } = await import("./watch.js");
+      await runWatch(interval);
+      break;
+    }
     default: {
       console.log(`\n  Unknown command: ${command}`);
       renderHelp();

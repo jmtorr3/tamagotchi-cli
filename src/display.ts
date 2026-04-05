@@ -45,6 +45,17 @@ export function renderMessage(message: string): void {
   console.log();
 }
 
+export function renderWatchPrompt(commands: readonly string[], selectedIndex: number): void {
+  const items = commands.map((cmd, i) =>
+    i === selectedIndex
+      ? chalk.bgWhite.black(` ${cmd} `)
+      : chalk.gray(`  ${cmd}  `)
+  ).join("");
+  console.log(`  ${items}`);
+  console.log(chalk.gray("  ← → to select  Enter to confirm  Ctrl+C to quit"));
+  console.log();
+}
+
 export function renderHelp(): void {
   console.log();
   console.log(chalk.bold("  tama <command>"));
@@ -55,6 +66,7 @@ export function renderHelp(): void {
   console.log("  sleep           Let your pet rest");
   console.log("  rename <name>   Rename your pet");
   console.log("  new             Start a new pet (prompts for name)");
+  console.log("  watch [secs]    Interactive mode, refreshes every N seconds (default 10)");
   console.log("  help            Show this help");
   console.log();
 }
